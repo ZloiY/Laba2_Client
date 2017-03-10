@@ -11,9 +11,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
-import sample.thrift.Operation;
 import sample.thrift.WebPatternDB;
-import sample.thrift.WorkWithClient;
 
 import java.util.ArrayList;
 

@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -10,6 +11,10 @@ import org.apache.thrift.TException;
 import sample.thrift.PatternModel;
 import sample.thrift.WebPatternDB;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +27,9 @@ public class MainWindowPane {
     private WebPatternDB.Client client;
     public MainWindowPane(BorderPane mainPane, WebPatternDB.Client client){
         tabPane = new TabPane();
+        patternList = new ArrayList<>();
         mainPane.setCenter(tabPane);
         this.client = client;
-        patternList = searchAllPatterns();
         addAllTabs();
         Button addPatternBtn = new Button("+");
         mainPane.setRight(addPatternBtn);
@@ -37,7 +42,7 @@ public class MainWindowPane {
     }
 
     private void addPatternTab(){
-        Tab tab = new Tab("tab");
+        MyTab tab = new MyTab("tab");
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         Window addWindow = new Window();
@@ -57,14 +62,21 @@ public class MainWindowPane {
                     return;
                 }else
                     newPattern.setDescription(addWindow.getNewPatternDescription().getText());
+                if (addWindow.getNewPatternSchema() != null){
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(addWindow.getNewPatternSchema().getImage(), null);
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                    try {
+                        ImageIO.write(bufferedImage,"png",outStream);
+                        newPattern.setSchema(outStream.toByteArray());
+                        outStream.close();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
                 try {
                     client.addPattern(newPattern);
-                    PatternModel pattern = client.getLastPattern();
-                    Window showWindow = new Window(pattern);
-                    showWindow.showLayout();
-                    tab.setText(pattern.getName());
-                    tab.setClosable(false);
-                    tab.setContent(showWindow.getBorderPane());
+                    tabPane.getTabs().remove(tab);
+                    addAllTabs();
                 }catch (TException e){
                     e.printStackTrace();
                 }
@@ -83,11 +95,20 @@ public class MainWindowPane {
     }
 
     private void addAllTabs(){
-        for (PatternModel pattern : patternList){
-            Tab tab = new Tab(pattern.name);
-            Window window = new Window(pattern);
+        boolean setSelected = true;
+        patternList = searchAllPatterns();
+        for (int i =0; i < patternList.size(); i++){
+            setSelected = true;
+            if (!tabPane.getTabs().isEmpty() && tabPane.getTabs().size() > i && ((MyTab)tabPane.getTabs().get(i)).getWindow().getPatternID() == patternList.get(i).getId()){
+                setSelected = false;
+                continue;
+            }
+            Window window = new Window(patternList.get(i));
+            MyTab tab = new MyTab(patternList.get(i).name);
             window.showLayout();
+            tab.setWindow(window);
             tab.setContent(window.getBorderPane());
+            tab.setClosable(false);
             window.getDelBtn().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -95,14 +116,28 @@ public class MainWindowPane {
                     deletePattern.setId(window.getPatternID());
                     try {
                         client.deletePattern(deletePattern);
+                        tabPane.getTabs().remove(tab);
                     }catch (TException e){
                         e.printStackTrace();
                     }
-                    tabPane.getTabs().remove(tab);
                 }
             });
-            tab.setClosable(false);
+            window.getEditBtn().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    Window editWindow = new Window(window.getPatternModel());
+                    editWindow.editLayout();
+                    editWindow.getApplyBtn().setText("Edit");
+                    editWindow.setPatternID(window.getPatternID());
+                    editWindow.getNewPatternName().setText(window.getPatternName().getText());
+                    editWindow.getNewPatternDescription().setText(window.getPatternDescription().getText());
+                    editWindow.setNewPatternSchema(editWindow.getPatternSchemaImage());
+                    tab.setContent(editWindow.getBorderPane());
+                }
+            });
             tabPane.getTabs().add(tab);
+            if (setSelected)
+            tabPane.getSelectionModel().select(tab);
         }
     }
 }

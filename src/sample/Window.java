@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -8,9 +10,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import sample.thrift.PatternModel;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 
 public class Window {
     private int patternID;
@@ -21,6 +26,9 @@ public class Window {
     private TextField newPatternName;
     private TextField newPatternDescription;
     private ImageView newPatternSchema;
+    private PatternModel patternModel;
+    private Button schemaViewer;
+    private Button schemaChooseBtn;
     private Button applyBtn;
     private Button cnclBtn;
     private VBox vBox;
@@ -28,13 +36,36 @@ public class Window {
     private Button editBtn;
     private HBox delEditBox;
 
+    public Label getPatternName() {
+        return patternName;
+    }
+
+    public Label getPatternDescription() {
+        return patternDescription;
+    }
+
+    public ImageView getPatternSchemaImage() {
+        return patternSchemaImage;
+    }
+
+    public void setPatternID(int patternID) {
+        this.patternID = patternID;
+    }
+
+    public void setNewPatternSchema(ImageView newPatternSchema) {
+        this.newPatternSchema = newPatternSchema;
+    }
+
     public Window(PatternModel pattern){
+        patternModel = pattern;
         patternID = pattern.id;
         patternName = new Label(pattern.name);
         patternDescription = new Label(pattern.description);
-        if (pattern.schema != null)
-        patternSchemaImage = new ImageView(new Image(new ByteArrayInputStream(pattern.schema.array())));
-        else patternSchemaImage = new ImageView();
+        patternSchemaImage = new ImageView();
+        if (pattern.schema != null) {
+            Image image = new Image(new ByteArrayInputStream(pattern.schema.array()));
+            patternSchemaImage.setImage(image);
+        }
         newPatternName = new TextField();
         newPatternDescription = new TextField();
         newPatternSchema = new ImageView();
@@ -42,10 +73,19 @@ public class Window {
         cnclBtn = new Button("Cancel");
         editBtn = new Button("Edit");
         delBtn = new Button("Delete");
+        schemaViewer = new Button("View schema");
+        schemaViewer.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                SchemaViewer schemaViewer = new SchemaViewer(patternSchemaImage);
+                schemaViewer.showViewer();
+            }
+        });
+        schemaChooseBtn = new Button("Choose schema");
         borderPane = new BorderPane();
         vBox = new VBox(10);
         delEditBox = new HBox(10);
-        delEditBox.getChildren().addAll(editBtn,delBtn);
+        delEditBox.getChildren().addAll(editBtn, delBtn, schemaViewer);
         borderPane.setCenter(vBox);
         borderPane.setBottom(delEditBox);
 
@@ -55,8 +95,16 @@ public class Window {
         newPatternName = new TextField();
         newPatternDescription = new TextField();
         newPatternSchema = new ImageView();
+        schemaViewer = new Button("Schema viewer");
+        schemaViewer.setOnAction(e->{
+            if (newPatternSchema!=null) {
+                SchemaViewer schemaViewer = new SchemaViewer(newPatternSchema);
+                schemaViewer.showViewer();
+            }
+        });
         applyBtn = new Button("Add");
         cnclBtn = new Button("Cancel");
+        schemaChooseBtn = new Button("Choose schema");
         borderPane = new BorderPane();
         vBox = new VBox(10);
         borderPane.setCenter(vBox);
@@ -110,15 +158,40 @@ public class Window {
         vBox.getChildren().clear();
         addName();
         addDescription();
-        addSchema();
+    }
+
+    public PatternModel getPatternModel(){
+        return patternModel;
     }
 
     public void editLayout(){
         vBox.getChildren().clear();
-        vBox.getChildren().addAll(newPatternName,newPatternDescription,newPatternSchema);
+        vBox.getChildren().addAll(newPatternName,newPatternDescription);
         HBox btnBox = new HBox(10);
-        btnBox.getChildren().addAll(applyBtn, cnclBtn);
+        btnBox.getChildren().addAll(applyBtn, cnclBtn, schemaChooseBtn, schemaViewer);
         vBox.getChildren().add(btnBox);
+        if (delEditBox!=null)
+            delEditBox.getChildren().clear();
+        cnclBtn.setOnAction(e->{
+            if (patternModel!=null){
+                showLayout();
+                delEditBox.getChildren().addAll(editBtn,delBtn,schemaViewer);
+            }
+        });
+        schemaChooseBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Stage schemaChooseWindow = new Stage();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setInitialDirectory(new File("C:\\Users\\ZloiY\\IdeaProjects\\Laba2_Client\\src\\image"));
+                fileChooser.setTitle("Pattern schema chooser");
+                fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("png","*.png"),
+                        new FileChooser.ExtensionFilter("bmp","*.bmp"),
+                        new FileChooser.ExtensionFilter("jpg", "*.jpg"));
+                File file = fileChooser.showOpenDialog(schemaChooseWindow);
+                newPatternSchema.setImage(new Image(file.toURI().toString()));
+            }
+        });
     }
 }
 
