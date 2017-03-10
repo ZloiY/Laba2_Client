@@ -10,15 +10,13 @@ import javafx.stage.Stage;
  * Created by ZloiY on 3/9/2017.
  */
 public class AlertBox {
-    private static Stage alertWindow;
-    private static Button okBtn;
-    private static Label errorMsg;
-
     public static void makeAlert(String message){
         VBox mainPane = new VBox(10);
+        Stage alertWindow = new Stage();
+        Button okBtn = new Button("Ok");
+        Label errorMsg = new Label(message);
         alertWindow.setTitle("Error");
         alertWindow.setAlwaysOnTop(true);
-        errorMsg.setText(message);
         mainPane.getChildren().addAll(errorMsg, okBtn);
         okBtn.setOnAction(e->{
             alertWindow.close();

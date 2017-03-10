@@ -1,15 +1,17 @@
-package sample;
+package sample.window_process;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import org.apache.thrift.TException;
+import sample.AlertBox;
+import sample.MyTab;
 import sample.thrift.PatternModel;
 import sample.thrift.WebPatternDB;
+import sample.window_process.Window;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -132,12 +134,36 @@ public class MainWindowPane {
                     editWindow.getNewPatternName().setText(window.getPatternName().getText());
                     editWindow.getNewPatternDescription().setText(window.getPatternDescription().getText());
                     editWindow.setNewPatternSchema(editWindow.getPatternSchemaImage());
+                    editWindow.getApplyBtn().setOnAction(e -> {
+                        PatternModel newPattern = new PatternModel();
+                        PatternModel oldPattern = new PatternModel();
+                        oldPattern.setId(window.getPatternID());
+                        newPattern.setId(editWindow.getPatternID());
+                        newPattern.setName(editWindow.getNewPatternName().getText());
+                        newPattern.setDescription(editWindow.getNewPatternDescription().getText());
+                        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(editWindow.getNewPatternSchema().getImage(), null);
+                        ByteArrayOutputStream output = new ByteArrayOutputStream();
+                        try {
+                            ImageIO.write(bufferedImage, "png", output);
+                            newPattern.setSchema(output.toByteArray());
+                            output.close();
+                            client.replacePattern(oldPattern,newPattern);
+                            oldPattern = client.getLastPattern();
+                            Window newWindow = new Window(oldPattern);
+                            newWindow.showLayout();
+                            tab.setContent(newWindow.getBorderPane());
+                            tab.setText(newWindow.getPatternName().getText());
+                        }catch (IOException|TException exception){
+                            exception.printStackTrace();
+                        }
+                    });
                     tab.setContent(editWindow.getBorderPane());
                 }
             });
             tabPane.getTabs().add(tab);
-            if (setSelected)
-            tabPane.getSelectionModel().select(tab);
+            if (setSelected) {
+                tabPane.getSelectionModel().select(tab);
+            }
         }
     }
 }

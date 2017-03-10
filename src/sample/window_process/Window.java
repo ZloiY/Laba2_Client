@@ -1,4 +1,4 @@
-package sample;
+package sample.window_process;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import sample.SchemaViewer;
 import sample.thrift.PatternModel;
 
 import java.io.ByteArrayInputStream;

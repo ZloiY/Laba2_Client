@@ -1,7 +1,7 @@
 package sample;
 
-import javafx.event.EventDispatchChain;
 import javafx.scene.control.Tab;
+import sample.window_process.Window;
 
 /**
  * Created by ZloiY on 3/10/2017.
