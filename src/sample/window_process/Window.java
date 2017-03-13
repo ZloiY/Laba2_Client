@@ -37,26 +37,6 @@ public class Window {
     private Button editBtn;
     private HBox delEditBox;
 
-    public Label getPatternName() {
-        return patternName;
-    }
-
-    public Label getPatternDescription() {
-        return patternDescription;
-    }
-
-    public ImageView getPatternSchemaImage() {
-        return patternSchemaImage;
-    }
-
-    public void setPatternID(int patternID) {
-        this.patternID = patternID;
-    }
-
-    public void setNewPatternSchema(ImageView newPatternSchema) {
-        this.newPatternSchema = newPatternSchema;
-    }
-
     public Window(PatternModel pattern){
         patternModel = pattern;
         patternID = pattern.id;
@@ -109,6 +89,26 @@ public class Window {
         borderPane = new BorderPane();
         vBox = new VBox(10);
         borderPane.setCenter(vBox);
+    }
+
+    public Label getPatternName() {
+        return patternName;
+    }
+
+    public Label getPatternDescription() {
+        return patternDescription;
+    }
+
+    public ImageView getPatternSchemaImage() {
+        return patternSchemaImage;
+    }
+
+    public void setPatternID(int patternID) {
+        this.patternID = patternID;
+    }
+
+    public void setNewPatternSchema(ImageView newPatternSchema) {
+        this.newPatternSchema = newPatternSchema;
     }
 
     public TextField getNewPatternName() {

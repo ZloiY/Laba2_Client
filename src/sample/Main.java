@@ -20,6 +20,7 @@ public class Main extends Application {
             socket.open();
             TProtocol protocol = new TBinaryProtocol(socket);
             WebPatternDB.Client client = new WebPatternDB.Client(protocol);
+            client.clientConnect(true);
             MainWindowPane mainWindowPane = new MainWindowPane(mainPane, client);
         }catch (Exception e){
             e.printStackTrace();
