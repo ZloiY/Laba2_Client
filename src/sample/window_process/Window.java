@@ -176,12 +176,11 @@ public class Window {
         btnBox.getChildren().addAll(applyBtn, cnclBtn, schemaChooseBtn, schemaViewer);
         vBox.getChildren().add(btnBox);
         if (delEditBox!=null)
-            delEditBox.getChildren().clear();
-        cnclBtn.setOnAction(e->{
-            if (patternModel!=null){
-                showLayout();
-                delEditBox.getChildren().addAll(editBtn,delBtn,schemaViewer);
-            }
+            delEditBox.visibleProperty().set(false);
+        cnclBtn.setOnAction(e -> {
+            showLayout();
+            delEditBox.visibleProperty().set(true);
+            delEditBox.getChildren().add(schemaViewer);
         });
         schemaChooseBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override

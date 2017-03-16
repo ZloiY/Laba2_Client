@@ -130,67 +130,8 @@ public class MainWindowPane implements Errors {
             tab.setWindow(window);
             tab.setContent(window.getBorderPane());
             tab.setClosable(false);
-            window.getDelBtn().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    PatternModel deletePattern = new PatternModel();
-                    deletePattern.setId(window.getPatternID());
-                    try {
-                        if (client.isConnected())
-                        client.deletePattern(deletePattern);
-                        tabPane.getTabs().remove(tab);
-                    }catch (TException e){
-                        new Alert(Alert.AlertType.ERROR, "Service is offline try again later.("+deleteErr+")").show();
-                    }
-                }
-            });
-            EventHandler<ActionEvent> editEvent = new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    Window editWindow = new Window(window.getPatternModel());
-                    editWindow.editLayout();
-                    editWindow.getApplyBtn().setText("Edit");
-                    editWindow.setPatternID(window.getPatternID());
-                    editWindow.getNewPatternName().setText(window.getPatternName().getText());
-                    editWindow.getNewPatternDescription().setText(window.getPatternDescription().getText());
-                    editWindow.setNewPatternSchema(editWindow.getPatternSchemaImage());
-                    editWindow.getApplyBtn().setOnAction(e -> {
-                        PatternModel newPattern = new PatternModel();
-                        PatternModel oldPattern = new PatternModel();
-                        oldPattern.setId(window.getPatternID());
-                        newPattern.setId(editWindow.getPatternID());
-                        newPattern.setName(editWindow.getNewPatternName().getText());
-                        if(newPattern.getName().length() > 10 || newPattern.getName().isEmpty()) {
-                            new Alert(Alert.AlertType.ERROR, "Your pattern name more than 10 characters or it's empty").show();
-                            return;
-                        }
-                        newPattern.setDescription(editWindow.getNewPatternDescription().getText());
-                        if (newPattern.getDescription().length() > 500 || newPattern.getDescription().isEmpty()) {
-                            new Alert(Alert.AlertType.ERROR, "Your pattern description more than 500 characters or it's empty").show();
-                            return;
-                        }
-                        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(editWindow.getNewPatternSchema().getImage(), null);
-                        ByteArrayOutputStream output = new ByteArrayOutputStream();
-                        try {
-                            ImageIO.write(bufferedImage, "png", output);
-                            newPattern.setSchema(output.toByteArray());
-                            output.close();
-                            if (client.isConnected())
-                                client.replacePattern(oldPattern,newPattern);
-                            if (client.isConnected())
-                                oldPattern = client.findPatternById(newPattern.getId());
-                            Window newWindow = new Window(oldPattern);
-                            newWindow.showLayout();
-                            tab.setContent(newWindow.getBorderPane());
-                            tab.setText(newWindow.getPatternName().getText());
-                        }catch (IOException|TException exception){
-                            exception.getCause();
-                        }
-                    });
-                    tab.setContent(editWindow.getBorderPane());
-                }
-            };
-            window.getEditBtn().setOnAction(editEvent);
+            window.getDelBtn().setOnAction(setDelEvent(window, tab));
+            window.getEditBtn().setOnAction(setEditEvent(window,tab));
             tabPane.getTabs().add(tab);
             if (setSelected) {
                 tabPane.getSelectionModel().select(tab);
@@ -198,4 +139,70 @@ public class MainWindowPane implements Errors {
         }
     }
 
+    private EventHandler<ActionEvent> setEditEvent(Window window, MyTab tab){
+        EventHandler<ActionEvent> editEvent = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                window.editLayout();
+                window.getApplyBtn().setText("Edit");
+                window.setPatternID(window.getPatternID());
+                window.getNewPatternName().setText(window.getPatternName().getText());
+                window.getNewPatternDescription().setText(window.getPatternDescription().getText());
+                window.setNewPatternSchema(window.getPatternSchemaImage());
+                window.getApplyBtn().setOnAction(e -> {
+                    PatternModel newPattern = new PatternModel();
+                    PatternModel oldPattern = new PatternModel();
+                    oldPattern.setId(window.getPatternID());
+                    newPattern.setId(window.getPatternID());
+                    newPattern.setName(window.getNewPatternName().getText());
+                    if(newPattern.getName().length() > 10 || newPattern.getName().isEmpty()) {
+                        new Alert(Alert.AlertType.ERROR, "Your pattern name more than 10 characters or it's empty").show();
+                        return;
+                    }
+                    newPattern.setDescription(window.getNewPatternDescription().getText());
+                    if (newPattern.getDescription().length() > 500 || newPattern.getDescription().isEmpty()) {
+                        new Alert(Alert.AlertType.ERROR, "Your pattern description more than 500 characters or it's empty").show();
+                        return;
+                    }
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(window.getNewPatternSchema().getImage(), null);
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    try {
+                        ImageIO.write(bufferedImage, "png", output);
+                        newPattern.setSchema(output.toByteArray());
+                        output.close();
+                        if (client.isConnected())
+                            client.replacePattern(oldPattern,newPattern);
+                        if (client.isConnected())
+                            oldPattern = client.findPatternById(newPattern.getId());
+                        Window newWindow = new Window(oldPattern);
+                        newWindow.showLayout();
+                        tab.setContent(newWindow.getBorderPane());
+                        tab.setText(newWindow.getPatternName().getText());
+                    }catch (IOException|TException exception){
+                        exception.getCause();
+                    }
+                });
+                tab.setContent(window.getBorderPane());
+            }
+        };
+        return editEvent;
+    }
+
+    private EventHandler<ActionEvent> setDelEvent(Window window, MyTab tab){
+        EventHandler<ActionEvent> delEvent = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                PatternModel deletePattern = new PatternModel();
+                deletePattern.setId(window.getPatternID());
+                try {
+                    if (client.isConnected())
+                        client.deletePattern(deletePattern);
+                    tabPane.getTabs().remove(tab);
+                }catch (TException e){
+                    new Alert(Alert.AlertType.ERROR, "Service is offline try again later.("+deleteErr+")").show();
+                }
+            }
+        };
+        return delEvent;
+    }
 }
