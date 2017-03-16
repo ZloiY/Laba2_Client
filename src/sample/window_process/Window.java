@@ -4,12 +4,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.SchemaViewer;
@@ -21,11 +23,11 @@ import java.io.File;
 public class Window {
     private int patternID;
     private Label patternName;
-    private Label patternDescription;
+    private Text patternDescription;
     private ImageView patternSchemaImage;
     private BorderPane borderPane;
     private TextField newPatternName;
-    private TextField newPatternDescription;
+    private TextArea newPatternDescription;
     private ImageView newPatternSchema;
     private PatternModel patternModel;
     private Button schemaViewer;
@@ -41,14 +43,16 @@ public class Window {
         patternModel = pattern;
         patternID = pattern.id;
         patternName = new Label(pattern.name);
-        patternDescription = new Label(pattern.description);
+        patternDescription = new Text(pattern.description);
+        patternDescription.setWrappingWidth(500);
         patternSchemaImage = new ImageView();
         if (pattern.schema != null) {
             Image image = new Image(new ByteArrayInputStream(pattern.schema.array()));
             patternSchemaImage.setImage(image);
         }
         newPatternName = new TextField();
-        newPatternDescription = new TextField();
+        newPatternDescription = new TextArea();
+        newPatternDescription.setWrapText(true);
         newPatternSchema = new ImageView();
         applyBtn = new Button("Add");
         cnclBtn = new Button("Cancel");
@@ -74,7 +78,7 @@ public class Window {
 
     public Window(){
         newPatternName = new TextField();
-        newPatternDescription = new TextField();
+        newPatternDescription = new TextArea();
         newPatternSchema = new ImageView();
         schemaViewer = new Button("Schema viewer");
         schemaViewer.setOnAction(e->{
@@ -95,7 +99,7 @@ public class Window {
         return patternName;
     }
 
-    public Label getPatternDescription() {
+    public Text getPatternDescription() {
         return patternDescription;
     }
 
@@ -115,7 +119,7 @@ public class Window {
         return newPatternName;
     }
 
-    public TextField getNewPatternDescription() {
+    public TextArea getNewPatternDescription() {
         return newPatternDescription;
     }
 

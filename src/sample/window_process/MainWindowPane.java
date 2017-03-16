@@ -9,6 +9,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.apache.thrift.TException;
 import sample.Errors;
 import sample.MyTab;
@@ -35,9 +36,10 @@ public class MainWindowPane implements Errors {
         mainPane.setCenter(tabPane);
         this.client = client;
         addAllTabs();
-        HBox functionBtnBox = new HBox();
+        VBox functionBtnBox = new VBox();
         Button addPatternBtn = new Button("+");
         Button searchButton = new Button("Search");
+        addPatternBtn.setMinWidth(52);
         functionBtnBox.getChildren().addAll(addPatternBtn,searchButton);
         mainPane.setRight(functionBtnBox);
         addPatternBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -61,6 +63,8 @@ public class MainWindowPane implements Errors {
         tabPane.getSelectionModel().select(tab);
         Window addWindow = new Window();
         addWindow.editLayout();
+        addWindow.getNewPatternDescription().setMinSize(200, 300);
+        addWindow.getNewPatternDescription().setEditable(true);
         tab.setContent(addWindow.getBorderPane());
         addWindow.getApplyBtn().setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -140,7 +144,7 @@ public class MainWindowPane implements Errors {
                     }
                 }
             });
-            window.getEditBtn().setOnAction(new EventHandler<ActionEvent>() {
+            EventHandler<ActionEvent> editEvent = new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     Window editWindow = new Window(window.getPatternModel());
@@ -156,7 +160,15 @@ public class MainWindowPane implements Errors {
                         oldPattern.setId(window.getPatternID());
                         newPattern.setId(editWindow.getPatternID());
                         newPattern.setName(editWindow.getNewPatternName().getText());
+                        if(newPattern.getName().length() > 10 || newPattern.getName().isEmpty()) {
+                            new Alert(Alert.AlertType.ERROR, "Your pattern name more than 10 characters or it's empty").show();
+                            return;
+                        }
                         newPattern.setDescription(editWindow.getNewPatternDescription().getText());
+                        if (newPattern.getDescription().length() > 500 || newPattern.getDescription().isEmpty()) {
+                            new Alert(Alert.AlertType.ERROR, "Your pattern description more than 500 characters or it's empty").show();
+                            return;
+                        }
                         BufferedImage bufferedImage = SwingFXUtils.fromFXImage(editWindow.getNewPatternSchema().getImage(), null);
                         ByteArrayOutputStream output = new ByteArrayOutputStream();
                         try {
@@ -164,9 +176,9 @@ public class MainWindowPane implements Errors {
                             newPattern.setSchema(output.toByteArray());
                             output.close();
                             if (client.isConnected())
-                            client.replacePattern(oldPattern,newPattern);
+                                client.replacePattern(oldPattern,newPattern);
                             if (client.isConnected())
-                            oldPattern = client.getLastPattern();
+                                oldPattern = client.findPatternById(newPattern.getId());
                             Window newWindow = new Window(oldPattern);
                             newWindow.showLayout();
                             tab.setContent(newWindow.getBorderPane());
@@ -177,11 +189,13 @@ public class MainWindowPane implements Errors {
                     });
                     tab.setContent(editWindow.getBorderPane());
                 }
-            });
+            };
+            window.getEditBtn().setOnAction(editEvent);
             tabPane.getTabs().add(tab);
             if (setSelected) {
                 tabPane.getSelectionModel().select(tab);
             }
         }
     }
+
 }
