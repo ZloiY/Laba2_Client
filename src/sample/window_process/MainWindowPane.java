@@ -78,7 +78,7 @@ public class MainWindowPane {
                     return;
                 }else
                     newPattern.setDescription(addWindow.getNewPatternDescription().getText());
-                if (addWindow.getNewPatternSchema() != null){
+                if (addWindow.getNewPatternSchema().getImage() != null){
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(addWindow.getNewPatternSchema().getImage(), null);
                     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                     try {
@@ -148,6 +148,7 @@ public class MainWindowPane {
                     PatternModel newPattern = new PatternModel();
                     PatternModel oldPattern = new PatternModel();
                     oldPattern.setId(window.getPatternID());
+                    oldPattern.setName(window.getPatternName().getText());
                     newPattern.setId(window.getPatternID());
                     newPattern.setName(window.getNewPatternName().getText());
                     if(newPattern.getName().length() > 10 || newPattern.getName().isEmpty()) {
@@ -159,19 +160,27 @@ public class MainWindowPane {
                         new Alert(Alert.AlertType.ERROR, "Your pattern description more than 500 characters or it's empty").show();
                         return;
                     }
-                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(window.getNewPatternSchema().getImage(), null);
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    if (window.getNewPatternSchema().getImage() != null) {
+                        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(window.getNewPatternSchema().getImage(), null);
+                        ByteArrayOutputStream output = new ByteArrayOutputStream();
+                        try {
+                            ImageIO.write(bufferedImage, "png", output);
+                            newPattern.setSchema(output.toByteArray());
+                            output.close();
+                        }catch (IOException ioException){
+                            ioException.printStackTrace();
+                        }
+                    }
                     try {
-                        ImageIO.write(bufferedImage, "png", output);
-                        newPattern.setSchema(output.toByteArray());
-                        output.close();
-                        client.replacePattern(oldPattern,newPattern);
+                        client.replacePattern(oldPattern, newPattern);
                         oldPattern = client.findPatternById(newPattern.getId());
                         Window newWindow = new Window(oldPattern);
                         newWindow.showLayout();
+                        newWindow.getDelBtn().setOnAction(setDelEvent(newWindow,tab));
+                        newWindow.getEditBtn().setOnAction(setEditEvent(newWindow,tab));
                         tab.setContent(newWindow.getBorderPane());
                         tab.setText(newWindow.getPatternName().getText());
-                    }catch (IOException|TException exception){
+                    } catch (TException exception) {
                         exception.getCause();
                     }
                 });
