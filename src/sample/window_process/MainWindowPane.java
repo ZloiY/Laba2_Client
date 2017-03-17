@@ -8,10 +8,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.thrift.TException;
-import sample.Errors;
 import sample.MyTab;
 import sample.thrift.PatternModel;
 import sample.thrift.WebPatternDB;
@@ -26,7 +24,7 @@ import java.util.List;
 /**
  * Created by ZloiY on 3/9/2017.
  */
-public class MainWindowPane implements Errors {
+public class MainWindowPane {
     private List<PatternModel> patternList;
     private TabPane tabPane;
     private WebPatternDB.Client client;
@@ -92,12 +90,11 @@ public class MainWindowPane implements Errors {
                     }
                 }
                 try {
-                    if (client.isConnected())
                     client.addPattern(newPattern);
                     tabPane.getTabs().remove(tab);
                     addAllTabs();
                 }catch (TException e){
-                    new Alert(Alert.AlertType.ERROR,"Service is offline try again latter.("+addErr+")").show();
+                    new Alert(Alert.AlertType.ERROR,"Service is offline try again latter.").show();
                 }
             }
         });
@@ -106,13 +103,11 @@ public class MainWindowPane implements Errors {
     private ArrayList<PatternModel> searchAllPatterns(){
         PatternModel pattern = new PatternModel();
         try {
-            if (client.isConnected())
             return new ArrayList<>(client.findPattern(pattern));
         }catch (TException e){
-            new Alert(Alert.AlertType.ERROR,"Service is offline try again later.("+searchAllErr+")").show();
+            new Alert(Alert.AlertType.ERROR,"Service is offline try again later.").show();
             return null;
         }
-        return null;
     }
 
     private void addAllTabs(){
@@ -170,10 +165,8 @@ public class MainWindowPane implements Errors {
                         ImageIO.write(bufferedImage, "png", output);
                         newPattern.setSchema(output.toByteArray());
                         output.close();
-                        if (client.isConnected())
-                            client.replacePattern(oldPattern,newPattern);
-                        if (client.isConnected())
-                            oldPattern = client.findPatternById(newPattern.getId());
+                        client.replacePattern(oldPattern,newPattern);
+                        oldPattern = client.findPatternById(newPattern.getId());
                         Window newWindow = new Window(oldPattern);
                         newWindow.showLayout();
                         tab.setContent(newWindow.getBorderPane());
@@ -195,11 +188,10 @@ public class MainWindowPane implements Errors {
                 PatternModel deletePattern = new PatternModel();
                 deletePattern.setId(window.getPatternID());
                 try {
-                    if (client.isConnected())
-                        client.deletePattern(deletePattern);
+                    client.deletePattern(deletePattern);
                     tabPane.getTabs().remove(tab);
                 }catch (TException e){
-                    new Alert(Alert.AlertType.ERROR, "Service is offline try again later.("+deleteErr+")").show();
+                    new Alert(Alert.AlertType.ERROR, "Service is offline try again later.").show();
                 }
             }
         };
