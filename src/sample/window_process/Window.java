@@ -193,7 +193,8 @@ public class Window {
                         new FileChooser.ExtensionFilter("bmp","*.bmp"),
                         new FileChooser.ExtensionFilter("jpg", "*.jpg"));
                 File file = fileChooser.showOpenDialog(schemaChooseWindow);
-                newPatternSchema.setImage(new Image(file.toURI().toString()));
+                if(file != null)
+                    newPatternSchema.setImage(new Image(file.toURI().toString()));
             }
         });
     }

@@ -56,7 +56,7 @@ public class MainWindowPane {
     }
 
     private void addPatternTab(){
-        MyTab tab = new MyTab("tab");
+        MyTab tab = new MyTab("New Pattern");
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         Window addWindow = new Window();
@@ -97,6 +97,9 @@ public class MainWindowPane {
                     new Alert(Alert.AlertType.ERROR,"Service is offline try again latter.").show();
                 }
             }
+        });
+        addWindow.getCnclBtn().setOnAction(e->{
+            tabPane.getTabs().remove(tab);
         });
     }
 
