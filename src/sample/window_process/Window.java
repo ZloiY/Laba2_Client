@@ -187,7 +187,7 @@ public class Window {
             public void handle(ActionEvent event) {
                 Stage schemaChooseWindow = new Stage();
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setInitialDirectory(new File("C:\\Users\\ZloiY\\IdeaProjects\\Laba2_Client\\src\\image"));
+                fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
                 fileChooser.setTitle("Pattern schema chooser");
                 fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("png","*.png"),
                         new FileChooser.ExtensionFilter("bmp","*.bmp"),
