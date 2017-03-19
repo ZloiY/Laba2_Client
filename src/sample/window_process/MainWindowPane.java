@@ -1,12 +1,10 @@
 package sample.window_process;
 
+import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.apache.thrift.TException;
@@ -28,12 +26,21 @@ public class MainWindowPane {
     private List<PatternModel> patternList;
     private TabPane tabPane;
     private WebPatternDB.Client client;
+    private ListView<String> patternsGroup;
+    private TabPane allTabs, mvTabs, behavTabs, creatTabs, structTabs;
     public MainWindowPane(BorderPane mainPane, WebPatternDB.Client client){
         tabPane = new TabPane();
         patternList = new ArrayList<>();
         mainPane.setCenter(tabPane);
         this.client = client;
-        addAllTabs();
+        patternsGroup = new ListView<>();
+        patternsGroup.setPrefWidth(150.0);
+        mainPane.setLeft(patternsGroup);
+        try {
+            patternsGroup.setItems(FXCollections.observableArrayList(this.client.findTables()));
+        }catch (TException thrift){
+            new Alert(Alert.AlertType.ERROR, "Couldn't get tables list.").show();
+        }
         VBox functionBtnBox = new VBox();
         Button addPatternBtn = new Button("+");
         Button searchButton = new Button("Search");
@@ -103,8 +110,9 @@ public class MainWindowPane {
         });
     }
 
-    private ArrayList<PatternModel> searchAllPatterns(){
+    private ArrayList<PatternModel> searchAllPatterns(String patternGroup){
         PatternModel pattern = new PatternModel();
+        pattern.setPatternGroup(patternGroup);
         try {
             return new ArrayList<>(client.findPattern(pattern));
         }catch (TException e){
@@ -113,9 +121,9 @@ public class MainWindowPane {
         }
     }
 
-    private void addAllTabs(){
+    private void addAllTabs(String patternGroup, TabPane tabPane){
         boolean setSelected = true;
-        patternList = searchAllPatterns();
+        patternList = searchAllPatterns(patternGroup);
         for (int i =0; i < patternList.size(); i++){
             setSelected = true;
             if (!tabPane.getTabs().isEmpty() && tabPane.getTabs().size() > i && ((MyTab)tabPane.getTabs().get(i)).getWindow().getPatternID() == patternList.get(i).getId()){
@@ -176,7 +184,7 @@ public class MainWindowPane {
                     }
                     try {
                         client.replacePattern(oldPattern, newPattern);
-                        oldPattern = client.findPatternById(newPattern.getId());
+                        oldPattern = client.findPatternById(newPattern.getId(), newPattern.getPatternGroup());
                         Window newWindow = new Window(oldPattern);
                         newWindow.showLayout();
                         newWindow.getDelBtn().setOnAction(setDelEvent(newWindow,tab));
