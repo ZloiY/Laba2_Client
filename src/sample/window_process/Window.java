@@ -2,10 +2,7 @@ package sample.window_process;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -14,15 +11,22 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import sample.Adapter;
 import sample.SchemaViewer;
+import sample.thrift.PatternGroup;
 import sample.thrift.PatternModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 
 public class Window {
     private int patternID;
     private Label patternName;
+    private Label patternGroup;
+    private ComboBox<String> newPatternGroup;
     private Text patternDescription;
     private ImageView patternSchemaImage;
     private BorderPane borderPane;
@@ -34,15 +38,18 @@ public class Window {
     private Button schemaChooseBtn;
     private Button applyBtn;
     private Button cnclBtn;
-    private VBox vBox;
+    private VBox descripitionBox;
     private Button delBtn;
     private Button editBtn;
     private HBox delEditBox;
+    private HashMap<String , Integer> patternsMap;
 
     public Window(PatternModel pattern){
         patternModel = pattern;
         patternID = pattern.id;
+        patternGroup = new Label(Adapter.fromEnumToStringPatternGroup(pattern.getPatternGroup()));
         patternName = new Label(pattern.name);
+        patternsMap = new HashMap<>();
         patternDescription = new Text(pattern.description);
         patternDescription.setWrappingWidth(500);
         patternSchemaImage = new ImageView();
@@ -53,6 +60,7 @@ public class Window {
         newPatternName = new TextField();
         newPatternDescription = new TextArea();
         newPatternDescription.setWrapText(true);
+        newPatternGroup = new ComboBox<>();
         newPatternSchema = new ImageView();
         applyBtn = new Button("Add");
         cnclBtn = new Button("Cancel");
@@ -68,10 +76,10 @@ public class Window {
         });
         schemaChooseBtn = new Button("Choose schema");
         borderPane = new BorderPane();
-        vBox = new VBox(10);
+        descripitionBox = new VBox(10);
         delEditBox = new HBox(10);
         delEditBox.getChildren().addAll(editBtn, delBtn, schemaViewer);
-        borderPane.setCenter(vBox);
+        borderPane.setCenter(descripitionBox);
         borderPane.setBottom(delEditBox);
 
     }
@@ -80,6 +88,12 @@ public class Window {
         newPatternName = new TextField();
         newPatternDescription = new TextArea();
         newPatternSchema = new ImageView();
+        newPatternGroup = new ComboBox<>();
+        patternsMap = new HashMap<>();
+        for (int i = 0; i <= 4; i++) {
+            patternsMap.put(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)),i);
+            newPatternGroup.getItems().add(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)));
+        }
         schemaViewer = new Button("Schema viewer");
         schemaViewer.setOnAction(e->{
             if (newPatternSchema!=null) {
@@ -91,8 +105,8 @@ public class Window {
         cnclBtn = new Button("Cancel");
         schemaChooseBtn = new Button("Choose schema");
         borderPane = new BorderPane();
-        vBox = new VBox(10);
-        borderPane.setCenter(vBox);
+        descripitionBox = new VBox(10);
+        borderPane.setCenter(descripitionBox);
     }
 
     public Label getPatternName() {
@@ -149,32 +163,29 @@ public class Window {
         return borderPane;
     }
 
-    public void addName(){
-        vBox.getChildren().add(patternName);
-    }
-
-    public void addDescription(){
-        vBox.getChildren().add(patternDescription);
-    }
-
-    public void addSchema(){ vBox.getChildren().add(patternSchemaImage); }
-
     public void showLayout(){
-        vBox.getChildren().clear();
-        addName();
-        addDescription();
+        descripitionBox.getChildren().clear();
+        descripitionBox.getChildren().addAll(patternName,patternGroup,patternDescription);
     }
 
     public PatternModel getPatternModel(){
         return patternModel;
     }
 
+    public ComboBox<String> getNewPatternGroup() {
+        return newPatternGroup;
+    }
+
+    public int getPatternGroup(){
+        return patternsMap.get(newPatternGroup.getValue());
+    }
+
     public void editLayout(){
-        vBox.getChildren().clear();
-        vBox.getChildren().addAll(newPatternName,newPatternDescription);
+        descripitionBox.getChildren().clear();
+        descripitionBox.getChildren().addAll(newPatternName,newPatternGroup,newPatternDescription);
         HBox btnBox = new HBox(10);
         btnBox.getChildren().addAll(applyBtn, cnclBtn, schemaChooseBtn, schemaViewer);
-        vBox.getChildren().add(btnBox);
+        descripitionBox.getChildren().add(btnBox);
         if (delEditBox!=null)
             delEditBox.visibleProperty().set(false);
         cnclBtn.setOnAction(e -> {
