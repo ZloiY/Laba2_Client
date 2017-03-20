@@ -32,6 +32,6 @@ public class Adapter {
                return "Порождающие паттерны";
             case 4:
                return "Поведенчиские паттерны";
-            default: return  "Все паттерны";}
+            default: return  "";}
     }
 }

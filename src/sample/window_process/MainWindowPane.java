@@ -59,7 +59,7 @@ public class MainWindowPane {
         addPatternBtn.setPrefWidth(190.0);
         pane.setRight(functionBtnBox);
         leftBox.getChildren().addAll(patternsGroups, patternModelListView,addPatternBtn);
-        leftBox.setPadding(new Insets(5,5,5,10));
+        leftBox.setPadding(new Insets(5,10,5,5));
         pane.setLeft(leftBox);
         addPatternBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -72,7 +72,7 @@ public class MainWindowPane {
     private void addPatternWindow(){
         Window addWindow = new Window();
         addWindow.editLayout();
-        addWindow.getNewPatternDescription().setMinSize(200, 300);
+        addWindow.getNewPatternDescription().setMinSize(300, 300);
         addWindow.getNewPatternDescription().setEditable(true);
         pane.setCenter(addWindow.getBorderPane());
         addWindow.getApplyBtn().setOnAction(new EventHandler<ActionEvent>() {
@@ -135,11 +135,13 @@ public class MainWindowPane {
         ChangeListener<String> changeListener = new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                Window patternWindow = new Window(patternsList.get(patternModelListView.getSelectionModel().getSelectedIndex()));
-                patternWindow.showLayout();
-                patternWindow.getEditBtn().setOnAction(setEditEvent(patternWindow));
-                patternWindow.getDelBtn().setOnAction(setDelEvent(patternWindow));
-                pane.setCenter(patternWindow.getBorderPane());
+                if (patternModelListView.getSelectionModel().getSelectedIndex() >= 0) {
+                    Window patternWindow = new Window(patternsList.get(patternModelListView.getSelectionModel().getSelectedIndex()));
+                    patternWindow.showLayout();
+                    patternWindow.getEditBtn().setOnAction(setEditEvent(patternWindow));
+                    patternWindow.getDelBtn().setOnAction(setDelEvent(patternWindow));
+                    pane.setCenter(patternWindow.getBorderPane());
+                }
             }
         };
         return changeListener;

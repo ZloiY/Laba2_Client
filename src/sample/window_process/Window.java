@@ -2,6 +2,7 @@ package sample.window_process;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -51,7 +52,7 @@ public class Window {
         patternName = new Label(pattern.name);
         patternsMap = new HashMap<>();
         patternDescription = new Text(pattern.description);
-        patternDescription.setWrappingWidth(500);
+        patternDescription.setWrappingWidth(380);
         patternSchemaImage = new ImageView();
         if (pattern.schema != null) {
             Image image = new Image(new ByteArrayInputStream(pattern.schema.array()));
@@ -76,11 +77,12 @@ public class Window {
         });
         schemaChooseBtn = new Button("Choose schema");
         borderPane = new BorderPane();
-        descripitionBox = new VBox(10);
-        delEditBox = new HBox(10);
+        descripitionBox = new VBox(5);
+        delEditBox = new HBox(5);
         delEditBox.getChildren().addAll(editBtn, delBtn, schemaViewer);
         borderPane.setCenter(descripitionBox);
         borderPane.setBottom(delEditBox);
+        borderPane.setPadding(new Insets(5,15,5,5));
 
     }
 
@@ -89,8 +91,9 @@ public class Window {
         newPatternDescription = new TextArea();
         newPatternSchema = new ImageView();
         newPatternGroup = new ComboBox<>();
+        patternGroup = new Label();
         patternsMap = new HashMap<>();
-        for (int i = 0; i <= 4; i++) {
+        for (int i = 1; i <= 4; i++) {
             patternsMap.put(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)),i);
             newPatternGroup.getItems().add(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)));
         }
@@ -105,7 +108,8 @@ public class Window {
         cnclBtn = new Button("Cancel");
         schemaChooseBtn = new Button("Choose schema");
         borderPane = new BorderPane();
-        descripitionBox = new VBox(10);
+        borderPane.setPadding(new Insets(5,15,5,5));
+        descripitionBox = new VBox(5);
         borderPane.setCenter(descripitionBox);
     }
 
@@ -185,6 +189,7 @@ public class Window {
         descripitionBox.getChildren().addAll(newPatternName,newPatternGroup,newPatternDescription);
         HBox btnBox = new HBox(10);
         btnBox.getChildren().addAll(applyBtn, cnclBtn, schemaChooseBtn, schemaViewer);
+        btnBox.setPadding(new Insets(0,5,0,0));
         descripitionBox.getChildren().add(btnBox);
         if (delEditBox!=null)
             delEditBox.visibleProperty().set(false);
