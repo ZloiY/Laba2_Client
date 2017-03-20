@@ -62,6 +62,10 @@ public class Window {
         newPatternDescription = new TextArea();
         newPatternDescription.setWrapText(true);
         newPatternGroup = new ComboBox<>();
+        for (int i = 1; i <= 4; i++) {
+            patternsMap.put(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)),i);
+            newPatternGroup.getItems().add(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)));
+        }
         newPatternSchema = new ImageView();
         applyBtn = new Button("Add");
         cnclBtn = new Button("Cancel");
@@ -169,7 +173,7 @@ public class Window {
 
     public void showLayout(){
         descripitionBox.getChildren().clear();
-        descripitionBox.getChildren().addAll(patternName,patternGroup,patternDescription);
+        descripitionBox.getChildren().addAll(patternGroup,patternName,patternDescription);
     }
 
     public PatternModel getPatternModel(){
@@ -180,13 +184,22 @@ public class Window {
         return newPatternGroup;
     }
 
-    public int getPatternGroup(){
+    public int getPatternGroupId(){
         return patternsMap.get(newPatternGroup.getValue());
+    }
+
+    public int getPatternGroup(){
+        return patternModel.getPatternGroup()-1;
+    }
+
+    public void blankWindow(){
+        borderPane.setBottom(null);
+        borderPane.setCenter(null);
     }
 
     public void editLayout(){
         descripitionBox.getChildren().clear();
-        descripitionBox.getChildren().addAll(newPatternName,newPatternGroup,newPatternDescription);
+        descripitionBox.getChildren().addAll(newPatternGroup, newPatternName, newPatternDescription);
         HBox btnBox = new HBox(10);
         btnBox.getChildren().addAll(applyBtn, cnclBtn, schemaChooseBtn, schemaViewer);
         btnBox.setPadding(new Insets(0,5,0,0));
