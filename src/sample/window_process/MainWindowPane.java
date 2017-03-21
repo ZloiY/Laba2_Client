@@ -28,28 +28,22 @@ import java.util.List;
  * Created by ZloiY on 3/9/2017.
  */
 public class MainWindowPane {
-    private ListView<String> allPattern, mvPatterns, createPatterns, structPatterns, behavePatterns;
-    private List<PatternModel> allPatternsList, mvPatternsList, createPatternsList, structPatternsList, behavePatternsList;
+    private PatternsLists allPattern, mvPatterns, createPatterns, structPatterns, behavePatterns;
     private ComboBox<String> patternsGroups;
     private WebPatternDB.Client client;
     private HashMap<String, Integer> patternsMap;
     private BorderPane pane;
     private VBox leftBox;
-    private double listViewWidth = 100.0;
     private Button addPatternBtn;
+
     public MainWindowPane(BorderPane mainPane, WebPatternDB.Client client){
         pane = mainPane;
         this.client = client;
-        allPattern = new ListView<>();
-        allPattern.setPrefWidth(listViewWidth);
-        mvPatterns = new ListView<>();
-        mvPatterns.setPrefWidth(listViewWidth);
-        createPatterns = new ListView<>();
-        createPatterns.setPrefWidth(listViewWidth);
-        structPatterns = new ListView<>();
-        structPatterns.setPrefWidth(listViewWidth);
-        behavePatterns = new ListView<>();
-        behavePatterns.setPrefWidth(listViewWidth);
+        allPattern = new PatternsLists();
+        mvPatterns = new PatternsLists();
+        createPatterns = new PatternsLists();
+        structPatterns = new PatternsLists();
+        behavePatterns = new PatternsLists();
         patternsGroups = new ComboBox<>();
         patternsGroups.setPrefWidth(190.0);
         patternsMap = new HashMap<>();
@@ -58,7 +52,7 @@ public class MainWindowPane {
             patternsGroups.getItems().add(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)));
         }
         patternsGroups.getSelectionModel().select(0);
-        getPatterns(null,allPattern, allPatternsList);
+        getPatterns(null, allPattern);
         addPatternBtn = new Button("+");
         patternsGroups.setOnAction(event -> {
            refreshPatternLists();
@@ -68,7 +62,7 @@ public class MainWindowPane {
         Button searchButton = new Button("Search");
         addPatternBtn.setPrefWidth(190.0);
         pane.setRight(functionBtnBox);
-        leftBox.getChildren().addAll(patternsGroups, allPattern,addPatternBtn);
+        leftBox.getChildren().addAll(patternsGroups, allPattern.getPatternsView(),addPatternBtn);
         leftBox.setPadding(new Insets(5,10,5,5));
         pane.setLeft(leftBox);
         addPatternBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -83,30 +77,30 @@ public class MainWindowPane {
         if (PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue()))!= null)
             switch (PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue()))) {
                 case MV_PATTERNS:
-                    getPatterns(PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue())), mvPatterns, mvPatternsList);
+                    getPatterns(PatternGroup.MV_PATTERNS, mvPatterns);
                     leftBox.getChildren().clear();
-                    leftBox.getChildren().addAll(patternsGroups, mvPatterns, addPatternBtn);
+                    leftBox.getChildren().addAll(patternsGroups, mvPatterns.getPatternsView(), addPatternBtn);
                     break;
                 case BEHAVE_PATTERNS:
-                    getPatterns(PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue())), behavePatterns, behavePatternsList);
+                    getPatterns(PatternGroup.BEHAVE_PATTERNS, behavePatterns);
                     leftBox.getChildren().clear();
-                    leftBox.getChildren().addAll(patternsGroups, behavePatterns, addPatternBtn);
+                    leftBox.getChildren().addAll(patternsGroups, behavePatterns.getPatternsView(), addPatternBtn);
                     break;
                 case CREAT_PATTERNS:
-                    getPatterns(PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue())), createPatterns, createPatternsList);
+                    getPatterns(PatternGroup.CREAT_PATTERNS, createPatterns);
                     leftBox.getChildren().clear();
-                    leftBox.getChildren().addAll(patternsGroups, createPatterns, addPatternBtn);
+                    leftBox.getChildren().addAll(patternsGroups, createPatterns.getPatternsView(), addPatternBtn);
                     break;
                 case STRUCT_PATTERNS:
-                    getPatterns(PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue())), structPatterns, structPatternsList);
+                    getPatterns(PatternGroup.STRUCT_PATTERNS, structPatterns);
                     leftBox.getChildren().clear();
-                    leftBox.getChildren().addAll(patternsGroups, structPatterns, addPatternBtn);
+                    leftBox.getChildren().addAll(patternsGroups, structPatterns.getPatternsView(), addPatternBtn);
                     break;
             }
         else{
-            getPatterns(null, allPattern, allPatternsList);
+            getPatterns(null, allPattern);
             leftBox.getChildren().clear();
-            leftBox.getChildren().addAll(patternsGroups, allPattern, addPatternBtn);
+            leftBox.getChildren().addAll(patternsGroups, allPattern.getPatternsView(), addPatternBtn);
         }
     }
 
@@ -165,29 +159,17 @@ public class MainWindowPane {
         }
     }
 
-    private void getPatterns(@Nullable PatternGroup patternGroup, ListView<String> patternModelListView, List<PatternModel> patternsList){
-        patternsList = searchAllPatterns(patternGroup);
-        patternModelListView.getItems().remove(0, patternModelListView.getItems().size());
-        for (PatternModel patternModel : patternsList)
-            patternModelListView.getItems().add(patternModel.getName());
-        patternModelListView.getSelectionModel().selectedItemProperty().addListener(setListSelectEvent(patternsList, patternModelListView));
-        setAllPatternsListAndView();
+    private void getPatterns(@Nullable PatternGroup patternGroup, PatternsLists patternsList){
+        patternsList.compareLists(searchAllPatterns(patternGroup));
+        patternsList.setListViewListner(setListSelectEvent(patternsList));
     }
 
-    private void setAllPatternsListAndView(){
-        allPatternsList = searchAllPatterns(null);
-        allPattern.getItems().clear();
-        for (PatternModel patternModel : allPatternsList)
-            allPattern.getItems().add(patternModel.getName());
-        allPattern.getSelectionModel().selectedItemProperty().addListener(setListSelectEvent(allPatternsList, allPattern));
-    }
-
-    private ChangeListener<String> setListSelectEvent(List<PatternModel> patternsList, ListView<String> patternModelListView){
+    private ChangeListener<String> setListSelectEvent(PatternsLists lists){
         ChangeListener<String> changeListener = new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (patternModelListView.getSelectionModel().getSelectedIndex() >= 0 && patternModelListView.getSelectionModel().getSelectedIndex() < patternModelListView.getItems().size()) {
-                    Window patternWindow = new Window(patternsList.get(patternModelListView.getSelectionModel().getSelectedIndex()));
+                if (lists.getPatternsView().getSelectionModel().getSelectedIndex() >= 0) {
+                    Window patternWindow = new Window(lists.getSelectedPattern());
                     patternWindow.showLayout();
                     patternWindow.getEditBtn().setOnAction(setEditEvent(patternWindow));
                     patternWindow.getDelBtn().setOnAction(setDelEvent(patternWindow));
@@ -265,33 +247,27 @@ public class MainWindowPane {
                 if (PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue())) != null)
                 switch (PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue()))){
                     case MV_PATTERNS:
-                        deleteManipulation(mvPatterns);
+                        mvPatterns.deleteFromPatternsView();
+                        getPatterns(PatternGroup.MV_PATTERNS, mvPatterns);
                         break;
                     case BEHAVE_PATTERNS:
-                        deleteManipulation(behavePatterns);
+                        behavePatterns.deleteFromPatternsView();
+                        getPatterns(PatternGroup.BEHAVE_PATTERNS, behavePatterns);
                         break;
                     case CREAT_PATTERNS:
-                        deleteManipulation(createPatterns);
+                        createPatterns.deleteFromPatternsView();
+                        getPatterns(PatternGroup.CREAT_PATTERNS, createPatterns);
                         break;
                     case STRUCT_PATTERNS:
-                        deleteManipulation(structPatterns);
+                        structPatterns.deleteFromPatternsView();
+                        getPatterns(PatternGroup.STRUCT_PATTERNS, structPatterns);
                         break;
                 }
-                else getPatterns(null, allPattern, allPatternsList);
+                else getPatterns(null, allPattern);
                 window.blankWindow();
             }
         };
         return delEvent;
     }
 
-    private void deleteManipulation(ListView<String> currentListView){
-        if (currentListView.getSelectionModel().getSelectedIndex()!=0) {
-            int selectedId = currentListView.getSelectionModel().getSelectedIndex();
-            currentListView.getSelectionModel().select( selectedId- 1);
-            currentListView.getItems().remove(selectedId);
-        }else{ currentListView.getSelectionModel().clearSelection();
-            currentListView.getItems().remove(0);
-        }
-        getPatterns(null,allPattern, allPatternsList);
-    }
 }
