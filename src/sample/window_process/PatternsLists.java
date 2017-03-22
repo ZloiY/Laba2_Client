@@ -29,11 +29,7 @@ public class PatternsLists {
     public ListView<String> getPatternsView(){ return patternsView; }
 
     public void compareLists(List<PatternModel> newList){
-        if (patternsLists == null)
-            setPatternsLists(newList);
-        else
-            if (patternsLists.size() != newList.size())
-                setPatternsLists(newList);
+        setPatternsLists(newList);
     }
 
     public PatternModel getSelectedPattern(){

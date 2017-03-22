@@ -189,10 +189,11 @@ public class Window {
     }
 
     public int getPatternGroup(){
-        return patternModel.getPatternGroup()-1;
+        return patternModel.getPatternGroup();
     }
 
     public void blankWindow(){
+        descripitionBox.getChildren().clear();
         borderPane.setBottom(null);
         borderPane.setCenter(null);
     }

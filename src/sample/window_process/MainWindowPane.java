@@ -109,6 +109,7 @@ public class MainWindowPane {
         addWindow.editLayout();
         addWindow.getNewPatternDescription().setMinSize(300, 300);
         addWindow.getNewPatternDescription().setEditable(true);
+        addWindow.getCnclBtn().setVisible(false);
         pane.setCenter(addWindow.getBorderPane());
         addWindow.getApplyBtn().setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -139,6 +140,7 @@ public class MainWindowPane {
                 }
                 try {
                     client.addPattern(newPattern);
+                    addWindow.blankWindow();
                     refreshPatternLists();
                 }catch (TException e){
                     new Alert(Alert.AlertType.ERROR,"Service is offline try again latter.").show();
@@ -189,7 +191,7 @@ public class MainWindowPane {
                 window.setPatternID(window.getPatternID());
                 window.getNewPatternName().setText(window.getPatternName().getText());
                 window.getNewPatternDescription().setText(window.getPatternDescription().getText());
-                window.getNewPatternGroup().getSelectionModel().select(window.getPatternGroup());
+                window.getNewPatternGroup().getSelectionModel().select(Adapter.fromEnumToStringPatternGroup(window.getPatternGroup()));
                 window.setNewPatternSchema(window.getPatternSchemaImage());
                 window.getApplyBtn().setOnAction(e -> {
                     PatternModel newPattern = new PatternModel();
@@ -198,6 +200,7 @@ public class MainWindowPane {
                     oldPattern.setName(window.getPatternName().getText());
                     newPattern.setId(window.getPatternID());
                     newPattern.setName(window.getNewPatternName().getText());
+                    newPattern.setPatternGroup(window.getPatternGroup());
                     if(newPattern.getName().length() > 10 || newPattern.getName().isEmpty()) {
                         new Alert(Alert.AlertType.ERROR, "Your pattern name more than 10 characters or it's empty").show();
                         return;
@@ -220,10 +223,12 @@ public class MainWindowPane {
                     }
                     try {
                         client.replacePattern(oldPattern, newPattern);
-                        Window newWindow = new Window(oldPattern);
+                        Window newWindow = new Window(newPattern);
                         newWindow.showLayout();
                         newWindow.getDelBtn().setOnAction(setDelEvent(newWindow));
                         newWindow.getEditBtn().setOnAction(setEditEvent(newWindow));
+                        pane.setCenter(newWindow.getBorderPane());
+                        refreshPatternLists();
                     } catch (TException exception) {
                         exception.getCause();
                     }
