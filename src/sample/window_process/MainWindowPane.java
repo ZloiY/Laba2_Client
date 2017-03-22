@@ -8,6 +8,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -62,7 +64,8 @@ public class MainWindowPane {
         patternsGroups.setOnAction(event -> {
            refreshPatternLists();
         });
-        Button refreshBtn = new Button("0");
+        Button refreshBtn = new Button();
+        refreshBtn.setGraphic(new ImageView(new Image("file:///C:\\Users\\ZloiY\\IdeaProjects\\Laba2_Client\\src\\image\\refresh.png")));
         HBox topBox = new HBox(5);
         topBox.getChildren().addAll(searchField, refreshBtn);
         topBox.setPadding(new Insets(5,5,0,5));

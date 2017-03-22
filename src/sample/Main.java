@@ -25,7 +25,7 @@ public class Main extends Application {
             e.printStackTrace();
         }
         primaryStage.setTitle("Web Application Patterns");
-        primaryStage.setScene(new Scene(mainPane, 600, 400));
+        primaryStage.setScene(new Scene(mainPane, 610, 400));
         primaryStage.show();
     }
 
