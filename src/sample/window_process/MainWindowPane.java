@@ -8,7 +8,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.thrift.TException;
 import sample.Adapter;
@@ -35,6 +38,7 @@ public class MainWindowPane {
     private BorderPane pane;
     private VBox leftBox;
     private Button addPatternBtn;
+    private TextField searchField;
 
     public MainWindowPane(BorderPane mainPane, WebPatternDB.Client client){
         pane = mainPane;
@@ -47,6 +51,7 @@ public class MainWindowPane {
         patternsGroups = new ComboBox<>();
         patternsGroups.setPrefWidth(190.0);
         patternsMap = new HashMap<>();
+        searchField = new TextField();
         for (int i = 0; i <= 4; i++) {
             patternsMap.put(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)),i);
             patternsGroups.getItems().add(Adapter.fromEnumToStringPatternGroup(PatternGroup.findByValue(i)));
@@ -57,10 +62,17 @@ public class MainWindowPane {
         patternsGroups.setOnAction(event -> {
            refreshPatternLists();
         });
+        Button refreshBtn = new Button("0");
+        HBox topBox = new HBox(5);
+        topBox.getChildren().addAll(searchField, refreshBtn);
+        topBox.setPadding(new Insets(5,5,0,5));
+        searchField.setOnKeyReleased(searchFieldEvent());
+        searchField.setPrefWidth(590-refreshBtn.getWidth());
+        refreshBtn.setOnAction(refreshBtnAction());
         leftBox = new VBox(5);
         VBox functionBtnBox = new VBox();
-        Button searchButton = new Button("Search");
         addPatternBtn.setPrefWidth(190.0);
+        pane.setTop(topBox);
         pane.setRight(functionBtnBox);
         leftBox.getChildren().addAll(patternsGroups, allPattern.getPatternsView(),addPatternBtn);
         leftBox.setPadding(new Insets(5,10,5,5));
@@ -102,6 +114,40 @@ public class MainWindowPane {
             leftBox.getChildren().clear();
             leftBox.getChildren().addAll(patternsGroups, allPattern.getPatternsView(), addPatternBtn);
         }
+    }
+
+    private EventHandler<ActionEvent> refreshBtnAction(){
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                refreshPatternLists();
+            }
+        };
+    }
+
+    private EventHandler<KeyEvent> searchFieldEvent(){
+        EventHandler<KeyEvent> searchEvent = new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ESCAPE))
+                    searchField.clear();
+                if (event.getCode().equals(KeyCode.ENTER)){
+                    PatternModel searchModel = new PatternModel();
+                    searchModel.setName(searchField.getText());
+                    searchModel.setPatternGroup(patternsMap.get(patternsGroups.getValue()));
+                    PatternsLists findList = new PatternsLists();
+                    try {
+                        findList.setPatternsLists(client.findPattern(searchModel));
+                        leftBox.getChildren().clear();
+                        leftBox.getChildren().addAll(patternsGroups, findList.getPatternsView(), addPatternBtn);
+                        findList.setListViewListner(setListSelectEvent(findList));
+                    }catch (TException e){
+                        new Alert(Alert.AlertType.ERROR, "Troubles with server connection.").show();
+                    }
+                }
+            }
+        };
+        return searchEvent;
     }
 
     private void addPatternWindow(){
@@ -162,7 +208,7 @@ public class MainWindowPane {
     }
 
     private void getPatterns(@Nullable PatternGroup patternGroup, PatternsLists patternsList){
-        patternsList.compareLists(searchAllPatterns(patternGroup));
+        patternsList.setPatternsLists(searchAllPatterns(patternGroup));
         patternsList.setListViewListner(setListSelectEvent(patternsList));
     }
 

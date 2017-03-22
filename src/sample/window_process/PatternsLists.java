@@ -19,7 +19,7 @@ public class PatternsLists {
         patternsView.setPrefWidth(listsWidth);
     }
 
-    private void setPatternsLists(List<PatternModel> patterns){
+    public void setPatternsLists(List<PatternModel> patterns){
         patternsLists = patterns;
         patternsView.getItems().clear();
         for (PatternModel patternModel : patternsLists)
@@ -27,10 +27,6 @@ public class PatternsLists {
     }
 
     public ListView<String> getPatternsView(){ return patternsView; }
-
-    public void compareLists(List<PatternModel> newList){
-        setPatternsLists(newList);
-    }
 
     public PatternModel getSelectedPattern(){
         return patternsLists.get(patternsView.getSelectionModel().getSelectedIndex());
