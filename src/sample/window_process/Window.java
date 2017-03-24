@@ -13,38 +13,103 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.Adapter;
-import sample.SchemaViewer;
 import sample.thrift.PatternGroup;
 import sample.thrift.PatternModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 
+/**
+ * Класс служащий для отображения информации о паттерне,
+ * редактирования этой информации, а также для добаления новых паттернов.
+ */
 public class Window {
+    /**
+     * id паттерна.
+     */
     private int patternID;
+    /**
+     * Отображаемое название паттерна.
+     */
     private Label patternName;
+    /**
+     * Отображаемая группа паттерна.
+     */
     private Label patternGroup;
+    /**
+     * Редактируемая группа паттерна.
+     */
     private ComboBox<String> newPatternGroup;
+    /**
+     * Отображаемое описание паттерна.
+     */
     private Text patternDescription;
+    /**
+     * Изображение паттерна.
+     */
     private ImageView patternSchemaImage;
+    /**
+     * Главная разметка окна.
+     */
     private BorderPane borderPane;
+    /**
+     * Редактироемое название паттерна.
+     */
     private TextField newPatternName;
+    /**
+     * Редактироемое описание паттерна.
+     */
     private TextArea newPatternDescription;
+    /**
+     * Новое изображение паттерна.
+     */
     private ImageView newPatternSchema;
+    /**
+     * Паттерн.
+     */
     private PatternModel patternModel;
+    /**
+     * Вызывает окно для отображения паттерна.
+     */
     private Button schemaViewer;
+    /**
+     * Вызывает окно для отображения выбора изображения паттерна.
+     */
     private Button schemaChooseBtn;
+    /**
+     * Принятияе изменений.
+     */
     private Button applyBtn;
+    /**
+     * Отмена изменений.
+     */
     private Button cnclBtn;
+    /**
+     * Хранит элементы для описания паттерна.
+     */
     private VBox descripitionBox;
+    /**
+     * Удаляеи паттерн.
+     */
     private Button delBtn;
+    /**
+     * Открывает окно редактирования паттерна.
+     */
     private Button editBtn;
+    /**
+     * Хранит кнопки удаления, редактировани, отображения схемы паттерна.
+     */
     private HBox delEditBox;
+    /**
+     * Хранит соответсвия id группы паттерна и названия этой группы.
+     */
     private HashMap<String , Integer> patternsMap;
 
+    /**
+     * Служит для создания окна отображения паттерна и возможности его дальнеёшего редактирования.
+     * @param pattern отображаемый паттерн.
+     */
     public Window(PatternModel pattern){
         patternModel = pattern;
         patternID = pattern.id;
@@ -90,6 +155,9 @@ public class Window {
 
     }
 
+    /**
+     * СОздаёт окно для добавления нового паттерна.
+     */
     public Window(){
         newPatternName = new TextField();
         newPatternDescription = new TextArea();
@@ -117,87 +185,168 @@ public class Window {
         borderPane.setCenter(descripitionBox);
     }
 
+    /**
+     * Возвращает название паттерна.
+     * @return название
+     */
     public Label getPatternName() {
         return patternName;
     }
 
+    /**
+     * Возвращает описание паттерна.
+     * @return описание паттерна
+     */
     public Text getPatternDescription() {
         return patternDescription;
     }
 
+    /**
+     * Возвращает схему паттерна.
+     * @return схему паттерна.
+     */
     public ImageView getPatternSchemaImage() {
         return patternSchemaImage;
     }
 
+    /**
+     * Устанавливает id паттерна.
+     * @param patternID id паттерна
+     */
     public void setPatternID(int patternID) {
         this.patternID = patternID;
     }
 
+    /**
+     * Устанавливает новую схему паттерна.
+     * @param newPatternSchema новая схема паттерна.
+     */
     public void setNewPatternSchema(ImageView newPatternSchema) {
         this.newPatternSchema = newPatternSchema;
     }
 
+    /**
+     * Возвращает новое название паттерна.
+     * @return название паттерна
+     */
     public TextField getNewPatternName() {
         return newPatternName;
     }
 
+    /**
+     * Возвращает новое описание паттерна.
+     * @return описание паттерниа
+     */
     public TextArea getNewPatternDescription() {
         return newPatternDescription;
     }
 
+    /**
+     * Возвращает новую схему паттерна.
+     * @return схему паттерна
+     */
     public ImageView getNewPatternSchema() {
         return newPatternSchema;
     }
 
+    /**
+     * Возвращает кнопуку принятия изменений.
+     * @return кнопку принятия изменений
+     */
     public Button getApplyBtn() {
         return applyBtn;
     }
 
+    /**
+     * Возвращает кнопку отмены изменений.
+     * @return кнопку отмены изменений
+     */
     public Button getCnclBtn() {
         return cnclBtn;
     }
 
+    /**
+     * Возвращает кнопку удаления паттерна.
+     * @return кнопку удаления паттерна
+     */
     public Button getDelBtn() {
         return delBtn;
     }
 
+    /**
+     * Возвращет кнопку редактирования паттерна.
+     * @return кнопку редактирования
+     */
     public Button getEditBtn() {
         return editBtn;
     }
 
+    /**
+     * Возвращает id паттерна.
+     * @return id паттерна.
+     */
     public int getPatternID(){return patternID;}
 
+    /**
+     * Возврашет разметку окна.
+     * @return разметку окна.
+     */
     public BorderPane getBorderPane() {
         return borderPane;
     }
 
+    /**
+     * Устанавливает элементы дял ортображения информации о паттене.
+     */
     public void showLayout(){
         descripitionBox.getChildren().clear();
         descripitionBox.getChildren().addAll(patternGroup,patternName,patternDescription);
     }
 
+    /***
+     * Возвращает паттерн.
+     * @return паттерн
+     */
     public PatternModel getPatternModel(){
         return patternModel;
     }
 
+    /**
+     * Возвращает новую группу паттерна.
+     * @return новую группу паттерна.
+     */
     public ComboBox<String> getNewPatternGroup() {
         return newPatternGroup;
     }
 
+    /**
+     * Возвращает id новой группы паттерна.
+     * @return id новой группы паттерна
+     */
     public int getPatternGroupId(){
         return patternsMap.get(newPatternGroup.getValue());
     }
 
+    /**
+     * Возвращает id группы паттерна.
+     * @return id группы паттерна.
+     */
     public int getPatternGroup(){
         return patternModel.getPatternGroup();
     }
 
+    /**
+     * Удаляет все элементы отображения и редактирования информации о паттерне.
+     */
     public void blankWindow(){
         descripitionBox.getChildren().clear();
         borderPane.setBottom(null);
         borderPane.setCenter(null);
     }
 
+    /**
+     * Устанавливает эелементы для редактирования/добавлениие информации о паттерне.
+     */
     public void editLayout(){
         descripitionBox.getChildren().clear();
         descripitionBox.getChildren().addAll(newPatternGroup, newPatternName, newPatternDescription);

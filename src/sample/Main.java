@@ -10,8 +10,20 @@ import org.apache.thrift.transport.TSocket;
 import sample.thrift.WebPatternDB;
 import sample.window_process.MainWindowPane;
 
+/**
+ * Класс служащий для запуска клиента.
+ */
 public class Main extends Application {
+    /**
+     * Клиентский сокет.
+     */
     private TSocket socket;
+
+    /**
+     * Точка входа в программу.
+     * @param primaryStage главное окно клиента
+     * @throws Exception
+     */
     @Override
     public void start(Stage primaryStage) throws Exception{
         BorderPane mainPane = new BorderPane();
@@ -24,11 +36,16 @@ public class Main extends Application {
         }catch (Exception e){
             e.printStackTrace();
         }
+        Scene scene = new Scene(mainPane, 610, 400);
         primaryStage.setTitle("Web Application Patterns");
-        primaryStage.setScene(new Scene(mainPane, 610, 400));
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    /**
+     * Закрывает клиентский сокет.
+     * @throws Exception
+     */
     @Override
     public void stop() throws Exception {
         super.stop();

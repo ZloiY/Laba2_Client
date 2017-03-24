@@ -30,18 +30,49 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by ZloiY on 3/9/2017.
+ * Класс являющийся главным окном программы и реализующий навигацию пользователя между списками паттернов.
  */
 public class MainWindowPane {
+    /**
+     * Списки всех группы паттернов.
+     */
     private PatternsLists allPattern, mvPatterns, createPatterns, structPatterns, behavePatterns;
+    /**
+     * Выбор группы паттернов.
+     */
     private ComboBox<String> patternsGroups;
+    /**
+     * Thrift объект для RPC взаимодействия.
+     */
     private WebPatternDB.Client client;
+    /**
+     * Хранит соответсвия id группы паттерна и названия этой группы.
+     */
     private HashMap<String, Integer> patternsMap;
+    /**
+     * Главаня разметка окна.
+     */
     private BorderPane pane;
+    /**
+     * Хранит {@link ComboBox} для отображения группы паттернов,
+     * {@link ListView} для отображения списка названий паттернов,
+     * кнопку для добавления паттернов.
+     */
     private VBox leftBox;
+    /**
+     * Добавляет новые паттерны.
+     */
     private Button addPatternBtn;
+    /**
+     * Поле поиска паттернов.
+     */
     private TextField searchField;
 
+    /**
+     * Создаёт главное окно программы  с элементами поиска и навигации пользователя по программе.
+     * @param mainPane главна разметка.
+     * @param client
+     */
     public MainWindowPane(BorderPane mainPane, WebPatternDB.Client client){
         pane = mainPane;
         this.client = client;
@@ -88,6 +119,9 @@ public class MainWindowPane {
         });
     }
 
+    /**
+     * Обнавляет список группы паттернов взависимости от выбранной группы.
+     */
     private void refreshPatternLists(){
         if (PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue()))!= null)
             switch (PatternGroup.findByValue(patternsMap.get(patternsGroups.getValue()))) {
@@ -119,6 +153,10 @@ public class MainWindowPane {
         }
     }
 
+    /**
+     * Хендлер для кнопки обновления группы паттернов.
+     * @return
+     */
     private EventHandler<ActionEvent> refreshBtnAction(){
         return new EventHandler<ActionEvent>() {
             @Override
@@ -128,6 +166,10 @@ public class MainWindowPane {
         };
     }
 
+    /**
+     * Хендлер для строки поиска паттернов.
+     * @return хендлер строки поиска
+     */
     private EventHandler<KeyEvent> searchFieldEvent(){
         EventHandler<KeyEvent> searchEvent = new EventHandler<KeyEvent>() {
             @Override
@@ -153,6 +195,9 @@ public class MainWindowPane {
         return searchEvent;
     }
 
+    /**
+     * Устанавливает в главноё разметке {@code pane} окно добавления паттерна.
+     */
     private void addPatternWindow(){
         Window addWindow = new Window();
         addWindow.editLayout();
@@ -198,6 +243,11 @@ public class MainWindowPane {
         });
     }
 
+    /**
+     * Формирует запрос поиск к серверу и принимает ответ сервера.
+     * @param patternGroup группа паттерна.
+     * @return список наёденных паттернов.
+     */
     private ArrayList<PatternModel> searchAllPatterns(@Nullable PatternGroup patternGroup){
         PatternModel pattern = new PatternModel();
         if (patternGroup !=  null)
@@ -210,11 +260,21 @@ public class MainWindowPane {
         }
     }
 
+    /**
+     * Устанавливает для переданного списка паттерна в соответсвии с их группой.
+     * @param patternGroup группа паттернов
+     * @param patternsList список группы паттернов
+     */
     private void getPatterns(@Nullable PatternGroup patternGroup, PatternsLists patternsList){
         patternsList.setPatternsLists(searchAllPatterns(patternGroup));
         patternsList.setListViewListner(setListSelectEvent(patternsList));
     }
 
+    /**
+     * Листнер для списка выбора паттернов.
+     * @param lists список паттернов.
+     * @return листнер для списка выбора паттернов.
+     */
     private ChangeListener<String> setListSelectEvent(PatternsLists lists){
         ChangeListener<String> changeListener = new ChangeListener<String>() {
             @Override
@@ -231,6 +291,12 @@ public class MainWindowPane {
         return changeListener;
     }
 
+    /**
+     * Хандлер изменяющий разметку окна отображения информации о паттерне,
+     * на разметку редактирования информации о паттерне.
+     * @param window окно сожержащее информацию о паттерне.
+     * @return хандлер изменения разметки окна
+     */
     private EventHandler<ActionEvent> setEditEvent(Window window){
         EventHandler<ActionEvent> editEvent = new EventHandler<ActionEvent>() {
             @Override
@@ -287,6 +353,11 @@ public class MainWindowPane {
         return editEvent;
     }
 
+    /**
+     * Хандлер удаляющий паттерн.
+     * @param window окно сожержащее информацию о паттерне
+     * @return хандлер удаляющий паттерн
+     */
     private EventHandler<ActionEvent> setDelEvent(Window window){
         EventHandler<ActionEvent> delEvent = new EventHandler<ActionEvent>() {
             @Override

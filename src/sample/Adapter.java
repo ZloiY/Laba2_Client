@@ -3,9 +3,14 @@ package sample;
 import sample.thrift.PatternGroup;
 
 /**
- * Created by ZloiY on 3/20/2017.
+ * Класс служащий для адаптирования {@link sample.thrift.PatternGroup} к строковому формату.
  */
 public class Adapter {
+    /**
+     * Метод преобразующий {@link sample.thrift.PatternGroup} к строке.
+     * @param patternGroup группа к которой принадлежит паттерн
+     * @return группу к оторой принадлежит паттерн в формате строки
+     */
     public static String fromEnumToStringPatternGroup(PatternGroup patternGroup){
         if (patternGroup != null) {
             switch (patternGroup.getValue()) {
@@ -22,6 +27,11 @@ public class Adapter {
         }else return "Все паттерны";
     }
 
+    /**
+     * Метод преобразующий {@link sample.thrift.PatternGroup} к строке.
+     * @param key значаени {@link sample.thrift.PatternGroup} в int.
+     * @return группу к оторой принадлежит паттерн в формате строки
+     */
     public static String fromEnumToStringPatternGroup(int key){
         switch (key) {
             case 1:

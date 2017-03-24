@@ -1,4 +1,4 @@
-package sample;
+package sample.window_process;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -18,20 +18,56 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 /**
- * Created by ZloiY on 3/10/2017.
+ * Класс для отображения схе мы паттерна в отдельном окне.
+ * Изображение можно увеличивать или уменьшать. С помощью клавиши Ctrl+колесико мыши вверх - увеличиать,
+ * Ctrl+колёсико мыши вниз - уменьшать. Двигать изображени по окну зажимая левую кнопку мыши и перемещая мышь.
  */
-
 public class SchemaViewer {
+    /**
+     * Окно для отображения схемы паттерна и интерфейса.
+     */
     private Stage window;
+    /**
+     * ImageView для хранения схемы паттерна и отображеиня.
+     */
     private ImageView patternSchema;
+    /**
+     * Разметка окна.
+     */
     private BorderPane mainPane;
+    /**
+     * Хранит кнопки зума и отображает текущий зум.
+     */
     private HBox btnBox;
+    /**
+     * Кнопка для увеличения изображения.
+     */
     private Button zoomIn;
+    /**
+     * Кнопка для уменьшения изображения.
+     */
     private Button zoomOut;
+    /**
+     * Служит для перемещения изображения по окну.
+     */
     private ScrollPane scrollPane;
+    /**
+     * Показывает текущее увеличение.
+     */
     private Label zoomLabel;
+    /**
+     * Используется для изменения размеров изоброажения.
+     */
     private DoubleProperty zoomProperty;
+    /**
+     * Текущее увеличение.
+     */
     private double currentZoom;
+
+    /**
+     * Создаёт окно для отображения схемы паттерна.
+     * @param schema схема паттерна
+     */
     public SchemaViewer(ImageView schema){
         window = new Stage();
         patternSchema = schema;
@@ -91,12 +127,20 @@ public class SchemaViewer {
         window.setScene(new Scene(mainPane, 500, 400));
     }
 
+    /**
+     * Вызывается при нажатии {@code zoomIn}.
+     * Увеличает иззображение.
+     */
     private void zoomInAction(){
         currentZoom+=0.05;
         zoomProperty.set(zoomProperty.get()*1.05);
         setZoomLabel();
     }
 
+    /**
+     * Вызывается при нажатии {@code zoomOut}.
+     * Уменьшает изображение.
+     */
     private void zoomOutAction(){
         if (!(currentZoom < 0)) {
             currentZoom -= 0.05;
@@ -105,10 +149,16 @@ public class SchemaViewer {
         }
     }
 
+    /**
+     * Отображает окно.
+     */
     public void showViewer(){
         window.show();
     }
 
+    /**
+     * Обнавляет текщий зум окна.
+     */
     private void setZoomLabel(){
         zoomLabel.setText(currentZoom*100+"%");
     }
