@@ -161,6 +161,7 @@ public class Window {
     public Window(){
         newPatternName = new TextField();
         newPatternDescription = new TextArea();
+        newPatternDescription.setWrapText(true);
         newPatternSchema = new ImageView();
         newPatternGroup = new ComboBox<>();
         patternGroup = new Label();

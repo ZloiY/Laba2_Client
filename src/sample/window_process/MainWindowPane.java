@@ -96,7 +96,7 @@ public class MainWindowPane {
            refreshPatternLists();
         });
         Button refreshBtn = new Button();
-        refreshBtn.setGraphic(new ImageView(new Image("file:///C:\\Users\\ZloiY\\IdeaProjects\\Laba2_Client\\src\\image\\refresh.png")));
+        refreshBtn.setGraphic(new ImageView(new Image(getClass().getClassLoader().getResource("image/refresh.png").toString())));
         HBox topBox = new HBox(5);
         topBox.getChildren().addAll(searchField, refreshBtn);
         topBox.setPadding(new Insets(5,5,0,5));
@@ -201,7 +201,7 @@ public class MainWindowPane {
     private void addPatternWindow(){
         Window addWindow = new Window();
         addWindow.editLayout();
-        addWindow.getNewPatternDescription().setMinSize(300, 300);
+        addWindow.getNewPatternDescription().setMinSize(300, 270);
         addWindow.getNewPatternDescription().setEditable(true);
         addWindow.getCnclBtn().setVisible(false);
         pane.setCenter(addWindow.getBorderPane());
@@ -209,7 +209,7 @@ public class MainWindowPane {
             @Override
             public void handle(ActionEvent event) {
                 PatternModel newPattern = new PatternModel();
-                if (addWindow.getNewPatternName().getText().length() > 10 || addWindow.getNewPatternName().getText().isEmpty()) {
+                if (addWindow.getNewPatternName().getText().length() > 50 || addWindow.getNewPatternName().getText().isEmpty()) {
                     new Alert(Alert.AlertType.WARNING,"Your pattern name more than 10 characters or it's empty").show();
                     return;
                 }else newPattern.setName(addWindow.getNewPatternName().getText());
@@ -316,13 +316,13 @@ public class MainWindowPane {
                     newPattern.setId(window.getPatternID());
                     newPattern.setName(window.getNewPatternName().getText());
                     newPattern.setPatternGroup(window.getPatternGroup());
-                    if(newPattern.getName().length() > 10 || newPattern.getName().isEmpty()) {
-                        new Alert(Alert.AlertType.ERROR, "Your pattern name more than 10 characters or it's empty").show();
+                    if(newPattern.getName().length() > 50 || newPattern.getName().isEmpty()) {
+                        new Alert(Alert.AlertType.WARNING, "Your pattern name more than 10 characters or it's empty").show();
                         return;
                     }
                     newPattern.setDescription(window.getNewPatternDescription().getText());
                     if (newPattern.getDescription().length() > 500 || newPattern.getDescription().isEmpty()) {
-                        new Alert(Alert.AlertType.ERROR, "Your pattern description more than 500 characters or it's empty").show();
+                        new Alert(Alert.AlertType.WARNING, "Your pattern description more than 500 characters or it's empty").show();
                         return;
                     }
                     if (window.getNewPatternSchema().getImage() != null) {
