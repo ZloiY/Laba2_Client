@@ -10,6 +10,8 @@ import org.apache.thrift.transport.TSocket;
 import sample.thrift.WebPatternDB;
 import sample.window_process.MainWindowPane;
 
+import java.util.Map;
+
 /**
  * Класс служащий для запуска клиента.
  */
@@ -27,8 +29,10 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         BorderPane mainPane = new BorderPane();
+        Parameters parameters = getParameters();
+        Map<String, String> namedParametrs =  parameters.getNamed();
         try{
-            socket = new TSocket("localhost",1488);
+            socket = new TSocket(namedParametrs.get("ip"),Integer.parseInt(namedParametrs.get("port")));
             socket.open();
             TProtocol protocol = new TBinaryProtocol(socket);
             WebPatternDB.Client client = new WebPatternDB.Client(protocol);
